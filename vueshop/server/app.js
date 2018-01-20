@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var ejs = require("ejs");
 var index = require('./routes/index');
 var goods = require('./routes/goods');
-
+var cors = require('cors');
 var app = express();
 
 // view engine setup
@@ -22,7 +22,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+//利用第三方模块解决跨域问题
+app.use(cors());
+/*//手写解决跨域
+app.all("*",function(req,res,next){
+  //CORS
+  // res.header("Access-Control-Allow-Origin","http://localhost:8080");
+  res.header("Access-Control-Allow-Origin","*");
+  // res.header("Access-Control-Alllow-Headers","Origin,X-Request-With,Content-Type,Accept")
+  // res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+  // res.header("X-Powered-By","3.2.1");
+  // res.header("Content-Type","application/json;charset=utf-8");
+  next();
+})*/
 app.use('/', index);
 app.use('/goods', goods);
 
