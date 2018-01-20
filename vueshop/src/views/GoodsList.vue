@@ -15,9 +15,9 @@
             <div class="filter" id="filter">
               <dl class="filter-price">
                 <dt>价格区间:</dt>
-                <dd><a href="javascript:void(0)">选择价格</a></dd>
-                <dd>
-                  <a href="javascript:void(0)">￥ 0 - 100 元</a>
+                <dd><a href="javascript:void(0)" @click="setPriceFilter('all')" :class="{'cur':priceChecked=='all'}">选择价格</a></dd>
+                <dd v-for="(item,index) in priceFilter">
+                  <a href="javascript:void(0)" @click="setPriceFilter(index)" :class="{'cur':priceChecked==index}">￥ {{item.startPrice}} - {{item.endPrice}} 元</a>
                 </dd>
               </dl>
             </div>
@@ -59,7 +59,34 @@ export default {
   name: 'goods-list',
   data(){
     return{
-    goodsList:[]
+      goodsList:[],
+      priceChecked:"all",
+      priceFilter:[
+      {
+        startPrice:'0.00',
+        endPrice:'100.00'
+      },
+      {
+        startPrice:'100.00',
+        endPrice:'500.00'
+      },
+      {
+        startPrice:'500.00',
+        endPrice:'1000.00'
+      },
+      {
+        startPrice:'1000.00',
+        endPrice:'2000.00'
+      },
+      {
+        startPrice:'2000.00',
+        endPrice:'3000.00'
+      },
+      {
+        startPrice:'3000.00',
+        endPrice:'6000.00'
+      }
+    ]
     }
   },
   components:{
@@ -73,6 +100,9 @@ export default {
         console.log(result)
           this.goodsList = result.data.result;
       })
+    },
+    setPriceFilter(index){
+      this.priceChecked = index;
     }
   },
   mounted(){
