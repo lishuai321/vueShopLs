@@ -26,18 +26,18 @@
             <div class="accessory-list-wrap">
               <div class="accessory-list col-4">
                 <ul>
-                  <li>
-                    <div class="pic">
-                      <a href="#"><img src="/static/1.jpg" alt=""></a>
-                    </div>
-                    <div class="main">
-                      <div class="name">小米电视4 55英寸</div>
-                      <div class="price">3999</div>
-                      <div class="btn-area">
-                        <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                    <li v-for="item in goodsList">
+                      <div class="pic">
+                        <a href="#"><img :src="'/static/'+item.productImage" alt=""></a>
                       </div>
-                    </div>
-                  </li>
+                      <div class="main">
+                        <div class="name">{{item.productName}}</div>
+                        <div class="price">{{item.salePrice}}</div>
+                        <div class="btn-area">
+                          <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                        </div>
+                      </div>
+                    </li>
                 </ul>
               </div>
             </div>
@@ -54,12 +54,29 @@ import "./../assets/css/goods-list.css"
 import NavHeader from "./../components/NavHeader"
 import NavFooter from "./../components/NavFooter"
 import NavBreader from "./../components/NavBreader"
+import axios from "axios"
 export default {
   name: 'goods-list',
+  data(){
+    return{
+    goodsList:[]
+    }
+  },
   components:{
     NavHeader:NavHeader,
     NavFooter:NavFooter,
     NavBreader:NavBreader
+  },
+  methods:{
+    getGoodsList(){
+      axios.get("./static/goods.json").then((result)=>{
+        console.log(result)
+          this.goodsList = result.data.result;
+      })
+    }
+  },
+  mounted(){
+    this.getGoodsList();
   }
 }
 </script>
