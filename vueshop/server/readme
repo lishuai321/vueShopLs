@@ -16,6 +16,7 @@ server：服务端项目名称
   命令：vue init webpack vueshop
 2、路由插件使用的vue-router;
 3、图片懒加载使用的vue-lazyLoad;
+4、滚动条滚动时间使用 vue-inifinite-scroll插件
 
 
 

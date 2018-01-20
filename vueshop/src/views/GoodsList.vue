@@ -6,8 +6,8 @@
         <div class="container">
           <div class="filter-nav">
             <span class="sortby">排序:</span>
-            <a href="javascript:void(0)" class="default cur">默认</a>
-            <a href="javascript:void(0)" class="price">价格 <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
+            <a href="javascript:void(0)" class="default cur" @click='defaultSort'>默认</a>
+            <a href="javascript:void(0)" class="price" :class="{'sort-up':sortFlag}" @click='sortGoods'>价格 <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
             <a href="javascript:void(0)" class="filterby" @click.stop="showFilterPop">筛选</a>
           </div>
           <div class="accessory-result">
@@ -40,6 +40,12 @@
                     </li>
                 </ul>
               </div>
+              <div class="view-more-normal"
+              v-infinite-scroll="loadMore"
+                   infinite-scroll-disabled="busy"
+                   infinite-scroll-distance="20">
+                  <img src="./../../static/loading-svg/loading-spinning-bubbles.svg" v-show="loading"/>
+              </div>
             </div>
           </div>
         </div>
@@ -62,7 +68,12 @@ export default {
     return{
       goodsList:[],
       priceChecked:"all",
+      sortFlag:true,
+      page:1,
+      pageSize:8,
       filterBy:false,
+      busy:true,
+      loading:false,
       priceFilter:[
       {
         startPrice:'0.00',
@@ -97,20 +108,65 @@ export default {
     NavBreader:NavBreader
   },
   methods:{
-    getGoodsList(){
-      axios.get("http://localhost:3000/goods").then((result)=>{
+    //获取列表数据
+    getGoodsList(flag){
+      this.loading = true;
+      var param = {
+        page:this.page,
+        pageSize:this.pageSize,
+        sort:this.sortFlag?1:-1,
+      }
+      axios.get("http://localhost:3000/goods",{params:param}).then((result)=>{
         console.log(result)
-          this.goodsList = result.data.result.list;
+        this.loading = false;
+        var data = result.data
+        if (data.status =='0'){
+          if(flag){
+            this.goodsList = this.goodsList.concat(data.result.list)
+            if (data.result.count == 0){
+              this.busy = true
+            }else {
+              this.busy =false
+            }
+          }else{
+            this.goodsList = data.result.list;
+            this.busy = false;
+          }
+        }else{
+          this.goodsList = [];
+        }
       })
     },
+    //设置price的过滤
     setPriceFilter(index){
       this.priceChecked = index;
     },
+    //显示价格过滤弹框
     showFilterPop(){
       this.filterBy = true;
     },
+    //关闭
     closePop(){
       this.filterBy= false;
+    },
+    //商品排序
+    sortGoods(){
+      this.sortFlag = !this.sortFlag;
+      this.page = 1;
+      this.getGoodsList();
+    },
+    //默认排序
+    defaultSort(){
+      this.sortFlag = true;
+      this.page = 1;
+      this.getGoodsList();
+    },
+    loadMore(){
+      this.busy = true;
+      setTimeout(()=>{
+        this.page++;
+        this.getGoodsList(true)
+      },500)
     }
   },
   mounted(){

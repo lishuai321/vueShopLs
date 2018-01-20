@@ -22,7 +22,14 @@ mongoose.connection.on("disconnected", function () {
 });
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  Goods.find({},function(err,doc){
+  let page = parseInt(req.param("page"));
+  let pageSize = parseInt(req.param('pageSize'));
+  let sort = req.param("sort");
+  let skip = (page-1)*pageSize;
+  let params = {};
+  let goodsModel = Goods.find(params).skip(skip).limit(pageSize);
+  goodsModel.sort({"salePrice":sort});
+  goodsModel.exec(function(err,doc){
     if (err){
       res.json({
         status:1,
@@ -33,7 +40,7 @@ router.get('/', function(req, res, next) {
         status:0,
         msg:"",
         result:{
-          len: doc.length,
+          count: doc.length,
           list: doc
         }
       })
