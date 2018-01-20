@@ -1,0 +1,19 @@
+后端服务
+1、nodemon==>需要全局安装用于改变服务代码自动重启node服务
+
+
+2、express generator用于初始化生成一个express搭建的项目
+命令：express ejs server;
+ejs:模板引擎
+server：服务端项目名称
+3、body-parser插件来处理post请求
+4、用morgan处理日志
+5、cookie-parser 处理cookie
+
+
+前端项目：
+1、使用vue-cli初始化搭建的结合webpack的项目
+  命令：vue init webpack vueshop
+2、路由插件使用的vue-router;
+3、图片懒加载使用的vue-lazyLoad;
+
