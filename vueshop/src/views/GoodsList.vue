@@ -98,9 +98,9 @@ export default {
   },
   methods:{
     getGoodsList(){
-      axios.get("./static/goods.json").then((result)=>{
+      axios.get("/goods").then((result)=>{
         console.log(result)
-          this.goodsList = result.data.result;
+          this.goodsList = result.data.result.list;
       })
     },
     setPriceFilter(index){
