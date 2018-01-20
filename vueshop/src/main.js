@@ -6,7 +6,7 @@ import router from './router'
 import VueLazyload from 'vue-lazyload';
 Vue.use(VueLazyload,{
   loading:"static/loading-svg/loading-bars.svg",
-  try:3
+  attemp:3
 })
 Vue.config.productionTip = false
 
