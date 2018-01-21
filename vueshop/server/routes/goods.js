@@ -23,7 +23,7 @@ mongoose.connection.on("disconnected", function () {
 });
 /* GET users listing. */
 //查询商品列表
-router.get('/', function(req, res, next) {
+router.get('/list', function(req, res, next) {
   let page = parseInt(req.param("page"));
   let pageSize = parseInt(req.param('pageSize'));
   let sort = req.param("sort");
@@ -75,7 +75,6 @@ router.post("/addCart",function(req,res,next){
             }
           })
           if (goodItem){
-            console.log(22222222222222222222)
             userDoc.save(function (err) {
               if (err){
                 dealErr(res,err);

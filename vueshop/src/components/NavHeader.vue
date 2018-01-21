@@ -31,11 +31,11 @@
           <div class="navbar-right-container">
             <div class="navbar-menu-container">
               <!--<a href="/" class="navbar-link">我的账户</a>-->
-              <span class="navbar-link"></span>
-              <a href="javascript:void(0)" class="navbar-link">登录</a>
-              <!--<a href="javascript:void(0)" class="navbar-link">登出</a>-->
+              <span class="navbar-link" v-text="nickName" v-if="nickName"></span>
+              <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">登录</a>
+              <a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>登出</a>
               <div class="navbar-cart-container">
-                <span class="navbar-cart-count"></span>
+                <span class="navbar-cart-count" v-text="cartCount" v-if="cartCount"></span>
                 <a class="navbar-link" href="/#/cart">
                   <svg class="navbar-cart-logo">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -45,16 +45,91 @@
             </div>
           </div>
         </div>
+        <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
+          <div class="md-modal-inner">
+            <div class="md-top">
+              <div class="md-title">登录</div>
+              <button class="md-close" @click="loginModalFlag=false">Close</button>
+            </div>
+            <div class="md-content">
+              <div class="confirm-tips">
+                <div class="error-wrap">
+                  <span class="error error-show" v-show="errorTip">用户名或者密码错误</span>
+                </div>
+                <ul>
+                  <li class="regi_form_input">
+                    <i class="icon IconPeople"></i>
+                    <input type="text" tabindex="1" name="loginname" v-model="userName" class="regi_login_input regi_login_input_left" placeholder="用户名" data-type="loginname">
+                  </li>
+                  <li class="regi_form_input noMargin">
+                    <i class="icon IconPwd"></i>
+                    <input type="password" tabindex="2"  name="password" v-model="userPwd" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="密码" @keyup.enter="login">
+                  </li>
+                </ul>
+              </div>
+              <div class="login-wrap">
+                <a href="javascript:;" class="btn-login" @click="login">登  录</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-overlay" v-if="loginModalFlag" @click="loginModalFlag=false"></div>
       </header>
     </div>
 </template>
 
 <script>
+  import "./../assets/css/login.css"
+  import axios from "axios";
+  var baseUrl = "http://localhost:8080"
     export default {
       name: "nav-header",
       data() {
         return {
-          msg: "nav-header"
+          userName:"admin",
+          userPwd:"123456",
+          errorTip:false,
+          loginModalFlag:false,
+          nickName:"",
+          cartCount:0
+        }
+      },
+      methods:{
+        login(){
+          if(!this.userName||!this.userPwd){
+            this.errorTip = true;
+            return;
+          }
+          axios.post(baseUrl+"/users/login",{
+            userName:this.userName,
+            userPwd:this.userPwd
+          }).then((response)=>{
+            let res = response.data;
+            if (res.status == "0"){
+              this.errorTip = false;
+              this.loginModalFlag = false;
+              this.nickName = res.result.userName;
+              // this.$store.commit("updateUserInfo",res.result.userName);
+              // this.getCartCount();
+            }else{
+              this.errorTip = true;
+            }
+          })
+        },
+        logOut(){
+          axios.post(baseUrl+"/users/logout").then((response)=>{
+            let res = response.data;
+            if(res.status=="0"){
+//                        this.nickName = '';
+              this.$store.commit("updateUserInfo",res.result.userName);
+            }
+          })
+        },
+        getCartCount(){
+          axios.get(baseUrl+"users/getCartCount").then(res=>{
+            var res = res.data;
+            this.$store.commit("updateCartCount",res.result);
+          });
         }
       }
     }

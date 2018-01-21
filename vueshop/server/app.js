@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var ejs = require("ejs");
 var index = require('./routes/index');
 var goods = require('./routes/goods');
+var users = require('./routes/users');
 var cors = require('cors');
 var app = express();
 
@@ -35,8 +36,27 @@ app.all("*",function(req,res,next){
   // res.header("Content-Type","application/json;charset=utf-8");
   next();
 })*/
+//登录拦截
+app.use(function (req,res,next) {
+  if(req.cookies.userId){
+    next();
+  }else{
+    console.log("url:"+req.originalUrl);
+    //拦截白名单
+    if(req.originalUrl=='/users/login' || req.originalUrl=='/users/logout' || req.originalUrl.indexOf('/goods/list')>-1){
+      next();
+    }else{
+      res.json({
+        status:'10001',
+        msg:'当前未登录',
+        result:''
+      });
+    }
+  }
+});
 app.use('/', index);
 app.use('/goods', goods);
+app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
