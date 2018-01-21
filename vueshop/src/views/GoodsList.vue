@@ -34,7 +34,7 @@
                         <div class="name">{{item.productName}}</div>
                         <div class="price">{{item.salePrice}}</div>
                         <div class="btn-area">
-                          <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                          <a href="javascript:;" @click="addCart(item.productId)" class="btn btn--m">加入购物车</a>
                         </div>
                       </div>
                     </li>
@@ -62,6 +62,7 @@ import NavHeader from "./../components/NavHeader"
 import NavFooter from "./../components/NavFooter"
 import NavBreader from "./../components/NavBreader"
 import axios from "axios"
+var baseUrl = 'http://localhost:3000';
 export default {
   name: 'goods-list',
   data(){
@@ -117,7 +118,7 @@ export default {
         sort:this.sortFlag?1:-1,
         priceLevel:this.priceChecked
       }
-      axios.get("http://localhost:3000/goods",{params:param}).then((result)=>{
+      axios.get(baseUrl+"/goods",{params:param}).then((result)=>{
         console.log(result)
         this.loading = false;
         var data = result.data
@@ -170,6 +171,16 @@ export default {
         this.page++;
         this.getGoodsList(true)
       },500)
+    },
+    //加入购物车
+    addCart(productId){
+      axios.post(baseUrl+"/goods/addCart",{productId:productId}).then(function(result){
+        if (result.data.status == 0){
+          alert("加入成功");
+        }else {
+          alert("加入失败");
+        }
+      })
     }
   },
   mounted(){
