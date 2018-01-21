@@ -115,6 +115,7 @@ export default {
         page:this.page,
         pageSize:this.pageSize,
         sort:this.sortFlag?1:-1,
+        priceLevel:this.priceChecked
       }
       axios.get("http://localhost:3000/goods",{params:param}).then((result)=>{
         console.log(result)
@@ -140,6 +141,8 @@ export default {
     //设置price的过滤
     setPriceFilter(index){
       this.priceChecked = index;
+      this.page = 1;
+      this.getGoodsList();
     },
     //显示价格过滤弹框
     showFilterPop(){

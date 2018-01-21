@@ -26,7 +26,19 @@ router.get('/', function(req, res, next) {
   let pageSize = parseInt(req.param('pageSize'));
   let sort = req.param("sort");
   let skip = (page-1)*pageSize;
+  let priceLevel = req.param("priceLevel");
   let params = {};
+  switch (priceLevel){
+    case '0': params = {"salePrice":{$gt:0,$lte:100}}; break;
+    case '1': params = {"salePrice":{$gt:100,$lte:500}};break;
+    case '2': params = {"salePrice":{$gt:500,$lte:1000}};break;
+    case '3': params = {"salePrice":{$gt:1000,$lte:2000}};break;
+    case '4': params = {"salePrice":{$gt:2000,$lte:3000}};break;
+    case '5': params = {"salePrice":{$gt:3000,$lte:6000}};break;
+    case "all": params = {};break;
+    default: break;
+  }
+  console.log(params);
   let goodsModel = Goods.find(params).skip(skip).limit(pageSize);
   goodsModel.sort({"salePrice":sort});
   goodsModel.exec(function(err,doc){
@@ -36,6 +48,7 @@ router.get('/', function(req, res, next) {
         msg:err.message
       })
     }else {
+      console.log(doc)
       res.json({
         status:0,
         msg:"",
