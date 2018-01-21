@@ -94,7 +94,21 @@
           cartCount:0
         }
       },
+      mounted(){
+        this.checkLogin();
+      },
       methods:{
+        checkLogin(){
+          axios.get(baseUrl+"/users/checkLogin").then(res=>{
+            var res = res.data;
+            if (res.status == 0){
+              this.nickName = res.result;
+              this.loginModalFlag = false;
+            }else{
+
+            }
+          })
+        },
         login(){
           if(!this.userName||!this.userPwd){
             this.errorTip = true;
@@ -120,15 +134,16 @@
           axios.post(baseUrl+"/users/logout").then((response)=>{
             let res = response.data;
             if(res.status=="0"){
+              this.nickName = "";
 //                        this.nickName = '';
-              this.$store.commit("updateUserInfo",res.result.userName);
+//               this.$store.commit("updateUserInfo",res.result.userName);
             }
           })
         },
         getCartCount(){
           axios.get(baseUrl+"users/getCartCount").then(res=>{
             var res = res.data;
-            this.$store.commit("updateCartCount",res.result);
+            // this.$store.commit("updateCartCount",res.result);
           });
         }
       }

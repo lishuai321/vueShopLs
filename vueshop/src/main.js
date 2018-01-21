@@ -5,6 +5,8 @@ import App from './App'
 import router from './router'
 import VueLazyload from 'vue-lazyload';
 import VueInfiniteScroll from 'vue-infinite-scroll';
+import axios from 'axios';
+axios.defaults.withCredentials = true;
 Vue.use(VueInfiniteScroll);
 Vue.use(VueLazyload,{
   loading:"static/loading-svg/loading-bars.svg",

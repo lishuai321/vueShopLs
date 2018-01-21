@@ -46,7 +46,6 @@ router.get('/list', function(req, res, next) {
     if (err){
       dealErr(res,err);
     }else {
-      console.log(doc)
       res.json({
         status:0,
         msg:"",
@@ -60,7 +59,6 @@ router.get('/list', function(req, res, next) {
 });
 //加入购物车
 router.post("/addCart",function(req,res,next){
-  console.log(11111)
   var userId = '100000077',productId = req.body.productId;
   Users.findOne({userId:userId},function(err,userDoc){
       if (err){

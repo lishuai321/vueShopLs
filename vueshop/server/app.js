@@ -24,25 +24,25 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 //利用第三方模块解决跨域问题
-app.use(cors());
-/*//手写解决跨域
-app.all("*",function(req,res,next){
-  //CORS
-  // res.header("Access-Control-Allow-Origin","http://localhost:8080");
-  res.header("Access-Control-Allow-Origin","*");
-  // res.header("Access-Control-Alllow-Headers","Origin,X-Request-With,Content-Type,Accept")
-  // res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-  // res.header("X-Powered-By","3.2.1");
-  // res.header("Content-Type","application/json;charset=utf-8");
+// app.use(cors());
+//手写解决跨域
+app.all('*', function(req, res, next) {
+  // CORS配置
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+  res.header("X-Powered-By",' 3.2.1')
+  res.header("Content-Type", "application/json;charset=utf-8");
   next();
-})*/
-//登录拦截
+});
+
 app.use(function (req,res,next) {
+  console.log(req.cookies);
   if(req.cookies.userId){
     next();
   }else{
     console.log("url:"+req.originalUrl);
-    //拦截白名单
     if(req.originalUrl=='/users/login' || req.originalUrl=='/users/logout' || req.originalUrl.indexOf('/goods/list')>-1){
       next();
     }else{

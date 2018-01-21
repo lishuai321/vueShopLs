@@ -178,7 +178,7 @@ export default {
         if (result.data.status == 0){
           alert("加入成功");
         }else {
-          alert("加入失败");
+          alert(result.data.msg);
         }
       })
     }

@@ -16,7 +16,7 @@ server：服务端项目名称
   命令：vue init webpack vueshop
 2、路由插件使用的vue-router;
 3、图片懒加载使用的vue-lazyLoad;
-4、滚动条滚动时间使用 vue-inifinite-scroll插件
+4、滚动条滚动事件使用 vue-inifinite-scroll插件处理
 
 
 
@@ -25,3 +25,4 @@ server：服务端项目名称
   （1 利用devserver 进行代理
   （2 后端服务器设置cors响应头 Access-Control-Allow-Origin 设置允许接受的orgin,请求头里会默认添加一个origin头信息
   （3 使用node模块 cors模块
+   (4 跨域需设置axios.defaults.withCredentials = true;才能在请求中携带cookie
