@@ -1,7 +1,9 @@
 <template>
     <div>
       <nav-header></nav-header>
-      <nav-breader></nav-breader>
+      <nav-breader>
+        <span>商品列表</span>
+      </nav-breader>
       <div class="accessory-result-page">
         <div class="container">
           <div class="filter-nav">
@@ -32,7 +34,7 @@
                       </div>
                       <div class="main">
                         <div class="name">{{item.productName}}</div>
-                        <div class="price">{{item.salePrice}}</div>
+                        <div class="price">{{item.salePrice | currency('￥')}}</div>
                         <div class="btn-area">
                           <a href="javascript:;" @click="addCart(item.productId)" class="btn btn--m">加入购物车</a>
                         </div>
@@ -82,6 +84,7 @@ import NavFooter from "./../components/NavFooter"
 import NavBreader from "./../components/NavBreader"
 import Modal from "./../components/Modal"
 import axios from "axios"
+import {currency} from "../util/currency";
 var baseUrl = 'http://localhost:3000';
 export default {
   name: 'goods-list',
@@ -131,6 +134,9 @@ export default {
     NavFooter,
     NavBreader,
     Modal
+  },
+  filters:{
+    currency
   },
   methods:{
     //获取列表数据

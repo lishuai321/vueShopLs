@@ -1,7 +1,9 @@
 <template>
   <div>
     <nav-header></nav-header>
-    <nav-breader></nav-breader>
+    <nav-breader>
+      <span>购物车</span>
+    </nav-breader>
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1"
          xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
@@ -57,42 +59,42 @@
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li>
+              <li v-for="(item,index) in cartList">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn">
+                    <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'check':item.checked == '1'}" @click="editCart('checked',item)">
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img src="/static/1.jpg">
+                    <img v-lazy='"/static/"+item.productImage' :alt = "item.productName">
                   </div>
                   <div class="cart-item-title">
-                    <div class="item-name">小米电视4 55英寸</div>
+                    <div class="item-name">{{item.productName}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">3999</div>
+                  <div class="item-price">{{item.salePrice | currency('￥')}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub">-</a>
-                        <span class="select-ipt">10</span>
-                        <a class="input-add">+</a>
+                        <a class="input-sub" @click="editCart('minu',item)">-</a>
+                        <span class="select-ipt">{{item.productNum}}</span>
+                        <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">39990</div>
+                  <div class="item-price-total">{{item.salePrice*item.productNum | currency('￥')}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -108,7 +110,7 @@
             <div class="cart-foot-l">
               <div class="item-all-check">
                 <a href="javascipt:;">
-                           <span class="checkbox-btn item-check-btn">
+                           <span class="checkbox-btn item-check-btn" :class="{'check':checkAllFlag}" @click="checkAll">
                               <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                            </span>
                   <span>全选</span>
@@ -117,7 +119,7 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                总价: <span class="total-price">39990</span>
+                总价: <span class="total-price">{{countPrice | currency('￥')}}</span>
               </div>
               <div class="btn-wrap">
                 <a class="btn btn--red">去结算</a>
@@ -127,6 +129,13 @@
         </div>
       </div>
     </div>
+    <Modal :mdShow="modalConfirm" @close="closeModal">
+      <p slot="message">你确认要删除此条数据吗?</p>
+      <div slot="btnGroup">
+        <a class="btn btn--m" href="javascript:;" @click="delCart">确认</a>
+        <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm = false">关闭</a>
+      </div>
+    </Modal>
     <nav-footer></nav-footer>
   </div>
 </template>
@@ -137,15 +146,125 @@
   import NavFooter from "./../components/NavFooter"
   import NavBreader from "./../components/NavBreader"
   import Modal from "./../components/Modal"
+  import {currency} from "../util/currency";
   import axios from "axios"
   var baseUrl = 'http://localhost:3000';
   export default {
     name: 'Cart',
+    data(){
+      return {
+        //存放购物车集合
+        cartList:[],
+        //确认删除吗
+        modalConfirm:false,
+        delItem:{},
+      }
+    },
+    filters:{
+      currency
+    },
+    computed:{
+      //存储计算需要结算的总价
+      countPrice(){
+        var sum = 0;
+        this.cartList.forEach(function(item){
+          if (item.checked == 1){
+            sum+= item.salePrice*item.productNum;
+          }
+        })
+        return sum;
+      },
+      checkAllFlag(){
+        return this.checkedCount == this.cartList.length;
+      },
+      checkedCount(){
+        var i = 0;
+        this.cartList.forEach((item)=>{
+          if(item.checked=='1')i++;
+        })
+        return i;
+      },
+    },
+    mounted(){
+      this.init();
+    },
     components:{
       NavHeader,
       NavFooter,
       NavBreader,
       Modal
+    },
+    methods:{
+      //初始化加载购物车列表
+      init(){
+        axios.get(baseUrl+"/users/cartList").then(function(res){
+          var data = res.data;
+          if (data.status==0){
+            this.cartList = data.result.cartList;
+          }else{
+
+          }
+        }.bind(this))
+      },
+      editCart(flag,item){
+        if(flag=='add'){
+          item.productNum++;
+        }else if(flag=='minu'){
+          if(item.productNum<=1){
+            return;
+          }
+          item.productNum--;
+        }else{
+          item.checked = item.checked=="1"?'0':'1';
+        }
+
+        axios.post(baseUrl+"/users/cartEdit",{
+          productId:item.productId,
+          productNum:item.productNum,
+          checked:item.checked
+        }).then((response)=>{
+          let res = response.data;
+          if(res.status=="0"){
+            // this.$store.commit("updateCartCount",flag=="add"?1:-1);
+          }
+        })
+      },
+      //全选事件
+      checkAll(){
+        var flag = !this.checkAllFlag;
+        this.cartList.forEach((item)=>{
+          item.checked = flag?'1':'0';
+        })
+        axios.post("http://localhost:3000/users/editCheckAll",{
+          checkAll:flag
+        }).then((response)=>{
+          let res = response.data;
+          if(res.status=='0'){
+            console.log("update suc");
+          }
+        })
+      },
+      //删除确认
+      delCartConfirm(item){
+        this.delItem = item;
+        this.modalConfirm = true;
+      },
+      //删除一条商品
+      delCart(){
+        axios.post(baseUrl+"/users/cartDel",{
+          productId:this.delItem.productId
+        }).then((response)=>{
+          let res = response.data;
+          if(res.status == '0'){
+            this.modalConfirm = false;
+            var delCount = this.delItem.productNum;
+            this.init();
+          }
+        })
+      },
+    closeModal(){
+        this.modalConfirm = false;
+    }
     }
   }
 </script>
