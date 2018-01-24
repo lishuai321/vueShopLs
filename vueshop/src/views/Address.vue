@@ -149,10 +149,11 @@
 <script>
     import NavHeader from './../components/NavHeader'
     import NavFooter from './../components/NavFooter'
-    import NavBread from './../components/NavBread'
-    import Modal from './../components/Modal'
+    import NavBread from './../components/NavBreader'
+    import Modal from '../components/Modal'
     import {currency} from './../util/currency'
     import axios from 'axios'
+    var baseUrl = 'http://localhost:3000';
     export default{
         data(){
             return{
@@ -181,7 +182,7 @@
         },
         methods:{
             init(){
-                axios.get("/users/addressList").then((response)=>{
+                axios.get(baseUrl+"/users/addressList").then((response)=>{
                     let res = response.data;
                     this.addressList = res.result;
                     console.log(res.result);
@@ -196,7 +197,7 @@
                 }
             },
             setDefault(addressId){
-                axios.post("/users/setDefault",{
+                axios.post(baseUrl+"/users/setDefault",{
                     addressId:addressId
                 }).then((response)=>{
                     let res = response.data;
@@ -219,7 +220,7 @@
                 }
             },
             delAddress(){
-                axios.post("/users/delAddress",{
+                axios.post(baseUrl+"/users/delAddress",{
                     addressId:this.addressId
                 }).then((response)=>{
                     let res = response.data;

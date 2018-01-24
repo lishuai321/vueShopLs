@@ -122,7 +122,7 @@
                 总价: <span class="total-price">{{countPrice | currency('￥')}}</span>
               </div>
               <div class="btn-wrap">
-                <a class="btn btn--red">去结算</a>
+                <router-link class="btn btn--red" to="/address">去结算</router-link>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@
   import NavHeader from "./../components/NavHeader"
   import NavFooter from "./../components/NavFooter"
   import NavBreader from "./../components/NavBreader"
-  import Modal from "./../components/Modal"
+  import Modal from "../components/Modal"
   import {currency} from "../util/currency";
   import axios from "axios"
   var baseUrl = 'http://localhost:3000';
@@ -207,6 +207,7 @@
         }.bind(this))
       },
       editCart(flag,item){
+        console.log(item)
         if(flag=='add'){
           item.productNum++;
         }else if(flag=='minu'){
@@ -217,7 +218,6 @@
         }else{
           item.checked = item.checked=="1"?'0':'1';
         }
-
         axios.post(baseUrl+"/users/cartEdit",{
           productId:item.productId,
           productNum:item.productNum,

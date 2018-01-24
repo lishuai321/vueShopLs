@@ -82,7 +82,7 @@ import "./../assets/css/goods-list.css"
 import NavHeader from "./../components/NavHeader"
 import NavFooter from "./../components/NavFooter"
 import NavBreader from "./../components/NavBreader"
-import Modal from "./../components/Modal"
+import Modal from "../components/Modal"
 import axios from "axios"
 import {currency} from "../util/currency";
 var baseUrl = 'http://localhost:3000';
