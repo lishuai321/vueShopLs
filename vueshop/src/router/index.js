@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import GoodsList from '@/views/GoodsList'
-import Cart from '@/views/Cart'
-import Address from '@/views/Address'
+const GoodsList = () => import('@/views/GoodsList');
+const Cart = () => import('@/views/Cart');
+const Address = () => import('@/views/Address');
+const OrderConfirm = () => import('@/views/OrderConfirm');
+const OrderSuccess = () => import('@/views/OrderSuccess');
 
 Vue.use(Router)
 
@@ -11,23 +12,38 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'home',
+      component: GoodsList
+    },
+    {
+      path: '/GoodsList',
       name: 'GoodsList',
       component: GoodsList
     },
     {
-      path: '/goodsList',
+      path: '/goods',
       name: 'GoodsList',
       component: GoodsList
     },
     {
-      path: '/cart',
+      path: '/Cart',
       name: 'Cart',
       component: Cart
-    } ,
+    },
     {
-      path: '/address',
+      path: '/Address',
       name: 'Address',
       component: Address
+    },
+    {
+      path: '/OrderConfirm',
+      name: 'OrderConfirm',
+      component: OrderConfirm
+    },
+    {
+      path: '/OrderSuccess',
+      name: 'OrderSuccess',
+      component: OrderSuccess
     }
   ]
 })

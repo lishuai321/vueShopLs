@@ -4,16 +4,17 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var ejs = require("ejs");
+var ejs = require('ejs');
+
 var index = require('./routes/index');
 var goods = require('./routes/goods');
 var users = require('./routes/users');
-var cors = require('cors');
+
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.engine('.html',ejs.__express);
+app.engine('.html', ejs.__express)
 app.set('view engine', 'html');
 
 // uncomment after placing your favicon in /public
@@ -23,12 +24,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-//利用第三方模块解决跨域问题
-// app.use(cors());
-//手写解决跨域
+
 app.all('*', function(req, res, next) {
   // CORS配置
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Origin", "http://localhost:4000");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
@@ -41,6 +40,7 @@ app.use(function (req,res,next) {
   if(req.cookies.userId){
     next();
   }else{
+    console.log("url:"+req.originalUrl);
     if(req.originalUrl=='/users/login' || req.originalUrl=='/users/logout' || req.originalUrl.indexOf('/goods/list')>-1){
       next();
     }else{
@@ -52,6 +52,7 @@ app.use(function (req,res,next) {
     }
   }
 });
+
 app.use('/', index);
 app.use('/goods', goods);
 app.use('/users', users);

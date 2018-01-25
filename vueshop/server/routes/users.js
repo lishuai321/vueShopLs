@@ -1,38 +1,40 @@
-var express = require("express");
+var express = require('express');
 var router = express.Router();
-var User = require("./../models/users");
-// 登录接口
-router.post("/login", function (req,res,next) {
+var User = require('./../models/user');
+require('./../util/util');
+
+//登录接口
+router.post("/login", function (req, res, next) {
   var param = {
-    userName:req.body.userName,
-    userPwd:req.body.userPwd
+    userName: req.body.userName,
+    userPwd: req.body.userPwd
   }
   User.findOne(param, function (err,doc) {
-    if(err){
-      res.json({
-        status:"1",
-        msg:err.message
-      });
-    }else{
-      if(doc){
-        res.cookie("userId",doc.userId,{
-          path:'/',
-          maxAge:1000*60*60
-        });
-        res.cookie("userName",doc.userName,{
-          path:'/',
-          maxAge:1000*60*60
-        });
-        res.json({
-          status:'0',
-          msg:'',
-          result:{
-            userName:doc.userName
-          }
-        });
-      }
-    }
-  });
+   if(err){
+     res.json({
+       status:"1",
+       msg:err.message
+     });
+   }else{
+     if(doc){
+       res.cookie("userId", doc.userId,{
+         path:'/',
+         maxAge:1000*60*60
+       });
+       res.cookie("userName", doc.userName,{
+         path:'/',
+         maxAge:1000*60*60
+       });
+       res.json({
+         status:'0',
+         msg:'',
+         result:{
+           userName:doc.userName
+         }
+                });
+     }
+   }
+    });
 });
 
 //登出接口
@@ -64,25 +66,29 @@ router.get("/checkLogin", function (req,res,next) {
     });
   }
 });
-//查询当前用户的购物车
-router.get("/cartList",function(req,res,next){
+
+//查询当前用户的购物车数据
+router.get("/cartList", function (req,res,next) {
   var userId = req.cookies.userId;
-  User.findOne({userId:userId},function(err,doc){
-    if (err){
-      dealErr();
-    }else {
-      if (doc){
+  User.findOne({userId:userId}, function (err,doc) {
+    if(err){
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      });
+    }else{
+      if(doc){
         res.json({
-          status:0,
-          msg:"",
-          result:{
-            cartList:doc.cartList
-          }
-        })
+          status:'0',
+          msg:'',
+          result:doc.cartList
+        });
       }
     }
-  })
-})
+  });
+});
+
 //购物车删除
 router.post("/cartDel", function (req,res,next) {
   var userId = req.cookies.userId,productId = req.body.productId;
@@ -95,7 +101,6 @@ router.post("/cartDel", function (req,res,next) {
       }
     }
   }, function (err,doc) {
-    console.log(doc)
     if(err){
       res.json({
         status:'1',
@@ -112,27 +117,32 @@ router.post("/cartDel", function (req,res,next) {
   });
 });
 //修改商品数量
-router.post("/cartEdit",function(req,res,next){
+router.post("/cartEdit", function (req,res,next) {
   var userId = req.cookies.userId,
     productId = req.body.productId,
     productNum = req.body.productNum,
     checked = req.body.checked;
   User.update({"userId":userId,"cartList.productId":productId},{
     "cartList.$.productNum":productNum,
-    "cartList.$.checked":checked
-  },function(err,doc){
+    "cartList.$.checked":checked,
+  }, function (err,doc) {
     if(err){
-      dealErr(res,err);
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      });
     }else{
       res.json({
-        status:0,
-        msg:"",
-        result:""
-      })
+        status:'0',
+        msg:'',
+        result:'suc'
+      });
     }
   })
-})
-//全选
+});
+
+//全部选中接口
 router.post("/editCheckAll", function (req,res,next) {
   var userId = req.cookies.userId,
     checkAll = req.body.checkAll?'1':'0';
@@ -167,6 +177,7 @@ router.post("/editCheckAll", function (req,res,next) {
     }
   });
 });
+
 //查询用户地址接口
 router.get("/addressList", function (req,res,next) {
   var userId = req.cookies.userId;
@@ -246,46 +257,183 @@ router.post("/delAddress", function (req,res,next) {
         result:''
       });
     }else{
-      if(doc.addressList.length > 1){
-        User.update({
-          userId:userId
-        },{
-          $pull:{
-            'addressList':{
-              'addressId':addressId
+        if(doc.addressList.length > 1){
+          User.update({
+            userId:userId
+          },{
+            $pull:{
+              'addressList':{
+                'addressId':addressId
+              }
             }
-          }
-        }, function (err,doc) {
-          if(err){
-            res.json({
-              status:'1',
-              msg:err.message,
-              result:''
-            });
-          }else{
-            res.json({
-              status:'0',
-              msg:'',
-              result:''
-            });
-          }
-        });
-      } else {
-        res.json({
-          status:'1',
-          msg:'至少保留一条收货地址！',
-          result:''
-        });
-      }
+          }, function (err,doc) {
+            if(err){
+              res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+              });
+            }else{
+              res.json({
+                status:'0',
+                msg:'',
+                result:''
+              });
+            }
+          });
+        } else {
+          res.json({
+            status:'1',
+            msg:'至少保留一条收货地址！',
+            result:''
+          });
+        }
     }
   })
 
 });
 
-function dealErr(res,err){
-  res.json({
-    status:1,
-    msg:err.message
+// 创建订单接口
+router.post("/payMent", function (req,res,next) {
+  var userId = req.cookies.userId,
+    addressId = req.body.addressId,
+    orderTotal = req.body.orderTotal;
+  User.findOne({userId:userId}, function (err,doc) {
+    if(err){
+      res.json({
+        status:"1",
+        msg:err.message,
+        result:''
+      });
+    }else{
+      var address = '',goodsList = [];
+      //获取当前用户的地址信息
+      doc.addressList.forEach((item)=>{
+        if(addressId==item.addressId){
+          address = item;
+        }
+      })
+      //获取用户购物车的购买商品
+      doc.cartList.filter((item)=>{
+        if(item.checked=='1'){
+          goodsList.push(item);
+        }
+      });
+
+      var platform = '622';
+      var r1 = Math.floor(Math.random()*10);
+      var r2 = Math.floor(Math.random()*10);
+
+      var sysDate = new Date().Format('yyyyMMddhhmmss');
+      var createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+      var orderId = platform+r1+sysDate+r2;
+      var order = {
+        orderId:orderId,
+        orderTotal:orderTotal,
+        addressInfo:address,
+        goodsList:goodsList,
+        orderStatus:'1',
+        createDate:createDate
+      };
+
+      doc.orderList.push(order);
+
+      doc.save(function (err1,doc1) {
+        if(err1){
+          res.json({
+            status:"1",
+            msg:err.message,
+            result:''
+          });
+        }else{
+          res.json({
+            status:"0",
+            msg:'',
+            result:{
+              orderId:order.orderId,
+              orderTotal:order.orderTotal
+            }
+          });
+        }
+      });
+    }
   })
-}
+});
+//根据订单Id查询订单信息
+router.get("/orderDetail", function (req,res,next) {
+  var userId = req.cookies.userId,orderId = req.param("orderId");
+  User.findOne({userId:userId}, function (err,userInfo) {
+    if(err){
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      });
+    }else{
+      var orderList = userInfo.orderList;
+      if(orderList.length>0){
+        var orderTotal = 0;
+        orderList.forEach((item)=>{
+          if(item.orderId == orderId){
+            orderTotal = item.orderTotal;
+          }
+        });
+        if(orderTotal>0){
+          res.json({
+            status:'0',
+            msg:'',
+            result:{
+              orderId:orderId,
+              orderTotal:orderTotal
+            }
+          })
+        }else{
+          res.json({
+            status:'120002',
+            msg:'无此订单',
+            result:''
+          });
+        }
+      }else{
+        res.json({
+          status:'120001',
+          msg:'当前用户未创建订单',
+          result:''
+        });
+      }
+    }
+  })
+});
+
+// 获取购车商品数量
+router.get("/getCartCount", function (req,res,next) {
+  if(req.cookies && req.cookies.userId){
+    console.log("userId:"+req.cookies.userId);
+    var userId = req.cookies.userId;
+    User.findOne({"userId":userId}, function (err,doc) {
+      if(err){
+        res.json({
+          status:"0",
+          msg:err.message
+        });
+      }else{
+        let cartList = doc.cartList;
+        let cartCount = 0;
+        cartList.map(function(item){
+          cartCount += parseFloat(item.productNum);
+        });
+        res.json({
+          status:"0",
+          msg:"",
+          result:cartCount
+        });
+      }
+    });
+  }else{
+    res.json({
+      status:"0",
+      msg:"当前用户不存在"
+    });
+  }
+});
 module.exports = router;

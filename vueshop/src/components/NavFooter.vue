@@ -1,5 +1,8 @@
+/**
+* Created by Song on 2017/11/1.
+*/
 <template>
-    <div class="hello">
+    <div>
       <footer class="footer">
         <div class="footer__wrap">
           <div class="footer__secondary">
@@ -25,16 +28,16 @@
 
 <script>
     export default {
-      name: "nav-footer",
-      data() {
-        return {
-          msg: "nav-footer"
+        data() {
+            return {
+                msg: 'Welcome to Your Vue.js App'
+            }
         }
-      }
     }
 </script>
 
-<style scoped>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style>
   .footer {
     background-color: #f5f7fc;
     color: #333;
@@ -79,5 +82,4 @@
   .footer__secondary__nav span:first-child {
     margin-left: 0;
   }
-
 </style>

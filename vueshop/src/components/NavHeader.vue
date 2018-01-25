@@ -1,5 +1,8 @@
+/**
+* Created by Song on 2017/11/1.
+*/
 <template>
-    <div class="hello">
+    <div>
       <header class="header">
         <svg class="goods-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
           <defs>
@@ -34,8 +37,9 @@
               <span class="navbar-link" v-text="nickName" v-if="nickName"></span>
               <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">登录</a>
               <a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>登出</a>
+              <!--<a href="javascript:void(0)" class="navbar-link">登出</a>-->
               <div class="navbar-cart-container">
-                <span class="navbar-cart-count" v-text="cartCount" v-if="cartCount"></span>
+                <span class="navbar-cart-count" v-text="cartCount" v-if="cartCount  && showCart "></span>
                 <a class="navbar-link" href="/#/cart">
                   <svg class="navbar-cart-logo">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -45,12 +49,14 @@
             </div>
           </div>
         </div>
+
         <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
           <div class="md-modal-inner">
             <div class="md-top">
               <div class="md-title">登录</div>
               <button class="md-close" @click="loginModalFlag=false">Close</button>
             </div>
+
             <div class="md-content">
               <div class="confirm-tips">
                 <div class="error-wrap">
@@ -73,84 +79,97 @@
             </div>
           </div>
         </div>
+
         <div class="md-overlay" v-if="loginModalFlag" @click="loginModalFlag=false"></div>
       </header>
     </div>
 </template>
 
 <script>
-  import "./../assets/css/login.css"
-  import axios from "axios";
-  var baseUrl = "http://localhost:8080"
-    export default {
-      name: "nav-header",
-      data() {
-        return {
-          userName:"admin",
-          userPwd:"123456",
-          errorTip:false,
-          loginModalFlag:false,
-          nickName:"",
-          cartCount:0
-        }
-      },
-      mounted(){
-        this.checkLogin();
-      },
-      methods:{
-        checkLogin(){
-          axios.get(baseUrl+"/users/checkLogin").then(res=>{
-            var res = res.data;
-            if (res.status == 0){
-              this.nickName = res.result;
-              this.loginModalFlag = false;
-            }else{
-
-            }
-          })
-        },
-        login(){
-          if(!this.userName||!this.userPwd){
-            this.errorTip = true;
-            return;
+  import './../assets/css/login.css'
+  import axios from 'axios';
+  axios.defaults.withCredentials = true;
+  import { mapState } from 'vuex'
+  export default {
+//        name: 'NavHeader_Song',
+        data() {
+          return{
+            userName:'admin',
+            userPwd:'123456',
+            errorTip:false,
+            loginModalFlag:false,
+            showCart:false,
           }
-          axios.post(baseUrl+"/users/login",{
-            userName:this.userName,
-            userPwd:this.userPwd
-          }).then((response)=>{
-            let res = response.data;
-            if (res.status == "0"){
-              this.errorTip = false;
-              this.loginModalFlag = false;
-              this.nickName = res.result.userName;
-              // this.$store.commit("updateUserInfo",res.result.userName);
-              // this.getCartCount();
-            }else{
-              this.errorTip = true;
-            }
-          })
         },
-        logOut(){
-          axios.post(baseUrl+"/users/logout").then((response)=>{
-            let res = response.data;
-            if(res.status=="0"){
-              this.nickName = "";
-//                        this.nickName = '';
-//               this.$store.commit("updateUserInfo",res.result.userName);
-            }
-          })
+        computed: {
+          ...mapState(['nickName','cartCount'])
         },
-        getCartCount(){
-          axios.get(baseUrl+"users/getCartCount").then(res=>{
-            var res = res.data;
-            // this.$store.commit("updateCartCount",res.result);
-          });
+    mounted(){
+      this.checkLogin();
+    },
+    methods: {
+      checkLogin(){
+        axios.get("http://localhost:3000/users/checkLogin").then((response)=>{
+          var res = response.data;
+          var path = this.$route.pathname;
+
+          if(res.status=="0"){
+//                      this.nickName = res.result;
+                      this.$store.commit("updateUserInfo",res.result);
+            this.showCart = true;
+            this.loginModalFlag = false;
+          }else{
+            if(this.$route.path!="/goods"){
+              this.$router.push("/goods");
+            }
+          }
+        });
+      },
+      login(){
+        if(!this.userName || !this.userPwd){
+          this.errorTip = true;
+          return;
         }
+        axios.post("http://localhost:3000/users/login",{
+          userName:this.userName,
+          userPwd:this.userPwd
+        }).then((response)=>{
+          let res = response.data;
+          if(res.status=="0"){
+            this.errorTip = false;
+            this.loginModalFlag = false;
+                        this.$store.commit("updateUserInfo",res.result.userName);
+                        this.getCartCount();
+          }else{
+            this.errorTip = true;
+          }
+        });
+            },
+            logOut(){
+                axios.post("http://localhost:3000/users/logout").then((response)=>{
+                    let res = response.data;
+                    if(res.status=="0"){
+//                        this.nickName = '';
+                      this.$store.commit("updateUserInfo",res.result.userName);
+                      this.$store.commit("updateCartCount",res.result);
+                      this.showCart = false;
+                    }
+                })
+            },
+            getCartCount(){
+              axios.get("http://localhost:3000/users/getCartCount").then(res=>{
+                var res = res.data;
+                alert(res.result)
+                this.$store.commit("updateCartCount",res.result);
+                this.showCart = true;
+              });
       }
+    }
     }
 </script>
 
-<style scoped>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style>
   .header {
     width: 100%;
     background-color: white;

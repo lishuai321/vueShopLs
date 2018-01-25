@@ -1,9 +1,12 @@
+/**
+* Created by Song on 2017/10/23.
+*/
 <template>
   <div>
     <nav-header></nav-header>
-    <nav-breader>
+    <nav-bread>
       <span>购物车</span>
-    </nav-breader>
+    </nav-bread>
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1"
          xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
@@ -59,38 +62,38 @@
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li v-for="(item,index) in cartList">
+              <li v-for="item in cartList">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'check':item.checked == '1'}" @click="editCart('checked',item)">
+                    <a href="javascipt:;" class="checkbox-btn item-check-btn" v-bind:class="{'check':item.checked=='1'}" @click="editCart('checked', item)">
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img v-lazy='"/static/"+item.productImage' :alt = "item.productName">
+                    <img v-lazy="'/static/' + item.productImage" v-bind:alt="item.productName">
                   </div>
                   <div class="cart-item-title">
                     <div class="item-name">{{item.productName}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">{{item.salePrice | currency('￥')}}</div>
+                  <div class="item-price">{{item.salePrice|currency('￥')}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
                         <a class="input-sub" @click="editCart('minu',item)">-</a>
-                        <span class="select-ipt">{{item.productNum}}</span>
+                        <span class="select-ipt" >{{item.productNum}}</span>
                         <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">{{item.salePrice*item.productNum | currency('￥')}}</div>
+                  <div class="item-price-total">{{(item.productNum*item.salePrice) |currency('￥')}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -109,20 +112,20 @@
           <div class="cart-foot-inner">
             <div class="cart-foot-l">
               <div class="item-all-check">
-                <a href="javascipt:;">
-                           <span class="checkbox-btn item-check-btn" :class="{'check':checkAllFlag}" @click="checkAll">
-                              <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
-                           </span>
+                <a href="javascipt:;" @click="toggleCheckAll">
+                                    <span class="checkbox-btn item-check-btn" v-bind:class="{'check':checkAllFlag}">
+                                        <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
+                                    </span>
                   <span>全选</span>
                 </a>
               </div>
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                总价: <span class="total-price">{{countPrice | currency('￥')}}</span>
+                总价: <span class="total-price">{{totalPrice |currency('￥')}}</span>
               </div>
               <div class="btn-wrap">
-                <router-link class="btn btn--red" to="/address">去结算</router-link>
+                                <a class="btn btn--red" v-bind:class="{'btn--dis':checkedCount==0}" @click="checkOut">去结算</a>
               </div>
             </div>
           </div>
@@ -141,39 +144,36 @@
 </template>
 
 <script>
+  import './../assets/css/base.css'
   import './../assets/css/checkout.css'
-  import NavHeader from "./../components/NavHeader"
-  import NavFooter from "./../components/NavFooter"
-  import NavBreader from "./../components/NavBreader"
-  import Modal from "../components/Modal"
-  import {currency} from "../util/currency";
-  import axios from "axios"
-  var baseUrl = 'http://localhost:3000';
+  import NavHeader from './../components/NavHeader.vue'
+  import NavBread from './../components/NavBread.vue'
+  import NavFooter from './../components/NavFooter.vue'
+  import Modal from './../components/Modal'
+  import {currency} from './../util/currency'
+  import axios from 'axios';
+  axios.defaults.withCredentials = true;
   export default {
-    name: 'Cart',
-    data(){
+    data() {
       return {
-        //存放购物车集合
         cartList:[],
-        //确认删除吗
-        modalConfirm:false,
         delItem:{},
+        modalConfirm: false
       }
     },
+    mounted(){
+      this.init();
+    },
     filters:{
-      currency
+      currency:currency
+    },
+    components: {
+      NavHeader,
+      NavBread,
+      NavFooter,
+      Modal
     },
     computed:{
-      //存储计算需要结算的总价
-      countPrice(){
-        var sum = 0;
-        this.cartList.forEach(function(item){
-          if (item.checked == 1){
-            sum+= item.salePrice*item.productNum;
-          }
-        })
-        return sum;
-      },
       checkAllFlag(){
         return this.checkedCount == this.cartList.length;
       },
@@ -184,30 +184,44 @@
         })
         return i;
       },
-    },
-    mounted(){
-      this.init();
-    },
-    components:{
-      NavHeader,
-      NavFooter,
-      NavBreader,
-      Modal
-    },
-    methods:{
-      //初始化加载购物车列表
-      init(){
-        axios.get(baseUrl+"/users/cartList").then(function(res){
-          var data = res.data;
-          if (data.status==0){
-            this.cartList = data.result.cartList;
-          }else{
-
+      totalPrice(){
+        var money = 0;
+        this.cartList.forEach((item)=>{
+          if(item.checked=='1'){
+            money += parseFloat(item.salePrice)*parseInt(item.productNum);
           }
-        }.bind(this))
+        })
+        return money;
+      }
+    },
+    methods: {
+      init(){
+        axios.get("http://localhost:3000/users/cartList").then((response)=>{
+          let res = response.data;
+          this.cartList = res.result;
+        });
       },
-      editCart(flag,item){
-        console.log(item)
+      closeModal(){
+        this.modalConfirm = false;
+      },
+      delCartConfirm(item){
+        this.delItem = item;
+        this.modalConfirm = true;
+      },
+      delCart(){
+        axios.post("http://localhost:3000/users/cartDel",{
+          productId:this.delItem.productId
+        }).then((response)=>{
+          let res = response.data;
+          if(res.status == '0'){
+            this.modalConfirm = false;
+            var delCount = this.delItem.productNum;
+            this.$store.commit("updateCartCount",-delCount);
+            this.init();
+          }
+        });
+      },
+      editCart(flag, item){
         if(flag=='add'){
           item.productNum++;
         }else if(flag=='minu'){
@@ -218,19 +232,20 @@
         }else{
           item.checked = item.checked=="1"?'0':'1';
         }
-        axios.post(baseUrl+"/users/cartEdit",{
+
+        axios.post("http://localhost:3000/users/cartEdit",{
           productId:item.productId,
           productNum:item.productNum,
           checked:item.checked
         }).then((response)=>{
           let res = response.data;
-          if(res.status=="0"){
-            // this.$store.commit("updateCartCount",flag=="add"?1:-1);
+        if(res.status=="0"){
+          this.$store.commit("updateCartCount",flag=="add"?1:-1);
           }
         })
       },
-      //全选事件
-      checkAll(){
+      toggleCheckAll(){
+        //点击之前是，未全选状态：通过本次点击切换到全选的状态
         var flag = !this.checkAllFlag;
         this.cartList.forEach((item)=>{
           item.checked = flag?'1':'0';
@@ -244,32 +259,18 @@
           }
         })
       },
-      //删除确认
-      delCartConfirm(item){
-        this.delItem = item;
-        this.modalConfirm = true;
-      },
-      //删除一条商品
-      delCart(){
-        axios.post(baseUrl+"/users/cartDel",{
-          productId:this.delItem.productId
-        }).then((response)=>{
-          let res = response.data;
-          if(res.status == '0'){
-            this.modalConfirm = false;
-            var delCount = this.delItem.productNum;
-            this.init();
-          }
-        })
-      },
-    closeModal(){
-        this.modalConfirm = false;
-    }
+            checkOut(){
+                if(this.checkedCount>0){
+                    this.$router.push({
+                    path:"/address"
+                  });
+                }
+            }
     }
   }
 </script>
 
-<style>
+<style scoped>
   .input-sub,.input-add{
     min-width: 40px;
     height: 100%;
