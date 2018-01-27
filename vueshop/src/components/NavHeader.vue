@@ -138,8 +138,8 @@
           if(res.status=="0"){
             this.errorTip = false;
             this.loginModalFlag = false;
-                        this.$store.commit("updateUserInfo",res.result.userName);
-                        this.getCartCount();
+            this.$store.commit("updateUserInfo",res.result.userName);
+            this.getCartCount();
           }else{
             this.errorTip = true;
           }

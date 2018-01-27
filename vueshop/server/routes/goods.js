@@ -5,7 +5,7 @@ var Goods = require('./../models/goods');
 
 
 //连接MongoDB数据库
-mongoose.connect('mongodb://127.0.0.1:27017/vue_shop');
+mongoose.connect('mongodb://127.0.0.1:27017/vue_shop_lesson');
 
 mongoose.connection.on("connected", function () {
   console.log("MongoDB connected success.")
