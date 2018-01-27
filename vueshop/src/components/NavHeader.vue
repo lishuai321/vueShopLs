@@ -1,5 +1,5 @@
 /**
-* Created by Song on 2017/11/1.
+* Created by lishuai on 2017/11/1.
 */
 <template>
     <div>
@@ -115,7 +115,7 @@
 
           if(res.status=="0"){
 //                      this.nickName = res.result;
-                      this.$store.commit("updateUserInfo",res.result);
+            this.$store.commit("updateUserInfo",res.result);
             this.showCart = true;
             this.loginModalFlag = false;
           }else{
@@ -159,7 +159,6 @@
             getCartCount(){
               axios.get("http://localhost:3000/users/getCartCount").then(res=>{
                 var res = res.data;
-                alert(res.result)
                 this.$store.commit("updateCartCount",res.result);
                 this.showCart = true;
               });

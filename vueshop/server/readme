@@ -17,7 +17,7 @@ server：服务端项目名称
 2、路由插件使用的vue-router;
 3、图片懒加载使用的vue-lazyLoad;
 4、滚动条滚动事件使用 vue-inifinite-scroll插件处理
-5、使用VueX插件对用户姓名及购物车数量进行状态管理
+5、使用vuex插件对用户姓名及购物车数量进行状态管理
 
 
 
