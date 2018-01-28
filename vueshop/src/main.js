@@ -8,30 +8,17 @@ import infiniteScroll from  'vue-infinite-scroll'
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 import Vuex from 'vuex'
-
+import storeObj from './vuex/store'
 Vue.use(infiniteScroll);
 Vue.use(Vuex);
+var store = new Vuex.Store(storeObj)
+
 Vue.use(VueLazyload, {
   loading: 'static/loading-svg/loading-bars.svg',
   attempt: 3 // default 1
 })
 Vue.config.productionTip = false
-const store = new Vuex.Store({
-  state: {
-    nickName:'',
-    cartCount:0
-  },
-  mutations: {
-    //更新用户信息
-    updateUserInfo(state, nickName) {
-      state.nickName = nickName;
-    },
-    //更新购物车信息
-    updateCartCount(state,cartCount){
-      state.cartCount += cartCount;
-    }
-  }
-});
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -43,7 +30,7 @@ new Vue({
   },
   methods:{
     checkLogin(){
-      axios.get("http://localhost:3000/users/checkLogin").then(res=> {
+      axios.get("/users/checkLogin").then(res=> {
         var res = res.data;
         if (res.status == "0") {
           this.$store.commit("updateUserInfo", res.result);
@@ -55,7 +42,7 @@ new Vue({
       });
     },
     getCartCount(){
-      axios.get("http://localhost:3000/users/getCartCount").then(res=>{
+      axios.get("/users/getCartCount").then(res=>{
         var res = res.data;
         if(res.status=="0"){
           this.$store.commit("updateCartCount",res.result);

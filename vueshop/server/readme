@@ -27,3 +27,8 @@ server：服务端项目名称
   （2 后端服务器设置cors响应头 Access-Control-Allow-Origin 设置允许接受的orgin,请求头里会默认添加一个origin头信息
   （3 使用node模块 cors模块
    (4 跨域需设置axios.defaults.withCredentials = true;才能在请求中携带cookie
+
+2、部署上线方式：
+    (1 前后端部署在一个服务器上
+     通过vue-cli的 npm run build 命令打包生成的生产版本，默认在dist目录下，dist目录下的文件复制到server下
+     的public目录
