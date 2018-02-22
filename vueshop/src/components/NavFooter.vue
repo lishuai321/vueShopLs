@@ -8,15 +8,15 @@
           <div class="footer__secondary">
             <div class="footer__inner">
               <div class="footer__secondary__nav">
-                <span>Copyright©2013-2017 dongnaoedu.com All Rights Reserved.</span>
-                <a href="https://dongnaoedu.com/">
-                  关于我们
+                <span>作者：李帅</span>
+                <a href="https://github.com/lishuai321/vueShopLs" target="_blank">
+                  github源码下载地址
                 </a>
-                <a href="http://dongnao.ke.qq.com/#tab=1&category=-1">
-                  腾讯课堂&&动脑学院
+                <a href="javascript:void (0)">
+                  其他作品（待完善）
                 </a>
-                <a href="https://dongnaoedu.com/index.html">
-                  版权所有 2008-2017 湘ICP备16006411号-1
+                <a href="javascript:void (0)">
+                  联系我：249782785@qq.com
                 </a>
               </div>
             </div>

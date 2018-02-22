@@ -1,7 +1,7 @@
 后端服务
 1、nodemon==>需要全局安装用于改变服务代码自动重启node服务
 命令 nodemon ./bin/www
-
+set npm_config_report = true && npm run build 可以以图形化的方式详细查看打包后的结果记录
 2、express generator用于初始化生成一个express搭建的项目
 命令：express ejs server;
 ejs:模板引擎
@@ -32,3 +32,19 @@ server：服务端项目名称
     (1 前后端部署在一个服务器上
      通过vue-cli的 npm run build 命令打包生成的生产版本，默认在dist目录下，dist目录下的文件复制到server下
      的public目录
+
+webpack配置文件详解
+
+build/dev-server.js
+首先来看执行”npm run dev”时候最先执行的build/dev-server.js文件。该文件主要完成下面几件事情：
+
+检查node和npm的版本、引入相关插件和配置
+webpack对源码进行编译打包并返回compiler对象
+创建express服务器
+配置开发中间件（webpack-dev-middleware）和热重载中间件（webpack-hot-middleware）
+挂载代理服务和中间件
+配置静态资源
+启动服务器监听特定端口（8080）
+自动打开浏览器并打开特定网址（localhost:8080）
+说明： express服务器提供静态文件服务，不过它还使用了http-proxy-middleware，一个http请求代理的中间件。前端开发过程中需要
+使用到后台的API的话，可以通过配置proxyTable来将相应的后台请求代理到专用的API服务器。
